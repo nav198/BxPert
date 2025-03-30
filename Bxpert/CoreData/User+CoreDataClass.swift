@@ -1,0 +1,15 @@
+//
+//  User+CoreDataClass.swift
+//  Bxpert
+//
+//  Created by Naveen on 28/03/25.
+//
+//
+
+import Foundation
+import CoreData
+
+@objc(User)
+public class User: NSManagedObject {
+
+}
