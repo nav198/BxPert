@@ -18,7 +18,7 @@ class HomeViewController: UIViewController {
         lbl.translatesAutoresizingMaskIntoConstraints = false
         return lbl
     }()
-    
+        
     var topView:UIView = {
         let view = UIView()
         view.backgroundColor = UIColor(red: 227/255, green: 46/255, blue: 103/255, alpha: 1.0)
@@ -36,7 +36,7 @@ class HomeViewController: UIViewController {
            return stackView
        }()
        
-    let buttonTitles = ["See PDF", "Image Capture", "Mobiles","Hello"]
+    let buttonTitles = ["See PDF", "Image Capture", "Mobiles","Users"]
     let systemImageNames = ["eye.fill", "camera.fill", "arrow.clockwise","circle.fill"]
 
     init(viewModel: HomeViewModel) {
@@ -55,7 +55,7 @@ class HomeViewController: UIViewController {
     }
     
     private func setupUI() {
-        view.backgroundColor = .systemBackground
+        view.backgroundColor = UIColor.systemGray5
         navigationItem.hidesBackButton = true
         
         welcomeLabel.text = viewModel.welcomeText
@@ -127,7 +127,7 @@ class HomeViewController: UIViewController {
        
     private func createCustomView(title: String, systemImageName: String, tag: Int) -> UIView {
         let containerView = UIView()
-        containerView.backgroundColor = UIColor.systemGray4
+        containerView.backgroundColor = .systemBackground
         containerView.layer.cornerRadius = 10
         containerView.layer.shadowOpacity = 0.2
         containerView.layer.shadowOffset = CGSize(width: 2, height: 2)
@@ -186,6 +186,9 @@ class HomeViewController: UIViewController {
                 navigationController?.pushViewController(vc, animated: true)
             case .mobile:
                 let vc = MobileVC()
+                navigationController?.pushViewController(vc, animated: true)
+            case .users:
+                let vc = UsersVC()
                 navigationController?.pushViewController(vc, animated: true)
             }
         }

@@ -60,6 +60,7 @@ class HomeViewModel {
         case 0: destination = .seeReport
         case 1: destination = .camera
         case 2: destination = .mobile
+        case 3: destination = .users
         default: return
         }
         onNavigate?(destination)

@@ -11,7 +11,7 @@ enum HomeNavigation {
     case seeReport
     case camera
     case mobile
-    
+    case users
 }
 
 enum ApiURl:String{

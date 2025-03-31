@@ -33,7 +33,7 @@ class MobileVC: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .systemBackground
+        view.backgroundColor = UIColor.systemGray5
         title = "Mobiles"
         setupStackView()
         bindViewModel()
@@ -96,9 +96,9 @@ class MobileVC: UIViewController {
         return rowStack
     }
 
-    private func createMobileItemView(for mobile: MobilesModel, image: UIImage?,row:Int,target:Any) -> UIView {
+    private func createMobileItemView(for mobile: MobilesModel, image: UIImage?, row: Int, target: Any) -> UIView {
         let containerView = UIView()
-        containerView.backgroundColor = UIColor.systemGray4
+        containerView.backgroundColor = .systemBackground
         containerView.layer.cornerRadius = 8
 
         let imageView = UIImageView(image: image)
@@ -106,16 +106,6 @@ class MobileVC: UIViewController {
         imageView.clipsToBounds = true
         imageView.layer.cornerRadius = 8
         imageView.translatesAutoresizingMaskIntoConstraints = false
-        
-        NSLayoutConstraint.activate([
-            imageView.widthAnchor.constraint(equalToConstant: 90),
-            imageView.heightAnchor.constraint(equalToConstant: 60)
-        ])
-
-        containerView.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            containerView.heightAnchor.constraint(equalToConstant: 120)
-        ])
 
         let label = UILabel()
         label.text = mobile.name
@@ -126,11 +116,11 @@ class MobileVC: UIViewController {
         label.translatesAutoresizingMaskIntoConstraints = false
 
         let editButton = UIButton(type: .system)
-        editButton.setImage(UIImage(systemName: "pencil"), for: .normal)
-        editButton.tintColor = .blue
+        editButton.setImage(UIImage(systemName: "pencil.fill"), for: .normal)
+        editButton.tintColor = .systemBlue
         editButton.tag = row
         editButton.translatesAutoresizingMaskIntoConstraints = false
-        editButton.addTarget(target, action: #selector(didTapEdit(sender: )), for: .touchUpInside)
+        editButton.addTarget(target, action: #selector(didTapEdit(sender:)), for: .touchUpInside)
 
         let deleteButton = UIButton(type: .system)
         deleteButton.setImage(UIImage(systemName: "trash"), for: .normal)
@@ -139,42 +129,75 @@ class MobileVC: UIViewController {
         deleteButton.translatesAutoresizingMaskIntoConstraints = false
         deleteButton.addTarget(target, action: #selector(didTapDelete(sender:)), for: .touchUpInside)
 
-        containerView.addSubview(label)
         containerView.addSubview(imageView)
+        containerView.addSubview(label)
         containerView.addSubview(editButton)
         containerView.addSubview(deleteButton)
 
         NSLayoutConstraint.activate([
-            imageView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 10),
-            imageView.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 10),
+            containerView.heightAnchor.constraint(greaterThanOrEqualToConstant: 160),
 
-            editButton.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -15),
-            editButton.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 10),
-            editButton.widthAnchor.constraint(equalToConstant: 30),
-            editButton.heightAnchor.constraint(equalToConstant: 30),
-
-            deleteButton.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -15),
-            deleteButton.topAnchor.constraint(equalTo: editButton.bottomAnchor, constant: 10),
-            deleteButton.widthAnchor.constraint(equalToConstant: 30),
-            deleteButton.heightAnchor.constraint(equalToConstant: 30),
+            imageView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 30),
+            imageView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -30),
+            imageView.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 15),
+            imageView.heightAnchor.constraint(equalToConstant: 60),
 
             label.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 10),
             label.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -10),
-            label.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -10),
-            label.topAnchor.constraint(greaterThanOrEqualTo: imageView.bottomAnchor, constant: 10)
+            label.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 10),
+
+            editButton.topAnchor.constraint(equalTo: label.bottomAnchor, constant: 10),
+            editButton.centerXAnchor.constraint(equalTo: containerView.centerXAnchor, constant: -20),
+            editButton.widthAnchor.constraint(equalToConstant: 30),
+            editButton.heightAnchor.constraint(equalToConstant: 30),
+
+            deleteButton.topAnchor.constraint(equalTo: label.bottomAnchor, constant: 10),
+            deleteButton.centerXAnchor.constraint(equalTo: containerView.centerXAnchor, constant: 20),
+            deleteButton.widthAnchor.constraint(equalToConstant: 25),
+            deleteButton.heightAnchor.constraint(equalToConstant: 25),
+
+            containerView.bottomAnchor.constraint(equalTo: deleteButton.bottomAnchor, constant: 15)
         ])
 
         return containerView
     }
+
     
     @objc private func didTapEdit(sender: UIButton) {
         let row = sender.tag
+        let mobile = mobileVM.mobilesList[row]
+
+        let alert = UIAlertController(title: "Edit Mobile Name",
+                                      message: "Enter a new name",
+                                      preferredStyle: .alert)
+
+        // Add text field
+        alert.addTextField { textField in
+            textField.text = mobile.name
+        }
+
+        // Add Cancel action
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+
+        // Add Save action
+        alert.addAction(UIAlertAction(title: "Save", style: .default, handler: { [weak self] _ in
+            guard let self = self, let newName = alert.textFields?.first?.text, !newName.isEmpty else { return }
+            
+            // Update mobile name in ViewModel
+            self.mobileVM.updateItem(at: row, newName: newName)
+
+            // Refresh UI
+            self.updateGridView()
+        }))
+
+        present(alert, animated: true, completion: nil)
     }
+
 
     @objc private func didTapDelete(sender: UIButton) {
         let row = sender.tag
         let alert = UIAlertController(title: "Delete Mobile",
-                                      message: "Are you sure you want to delete this item?",
+                                      message: "Are you sure you want to delete this \(self.mobileVM.mobilesList[sender.tag])?",
                                       preferredStyle: .alert)
 
         alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))

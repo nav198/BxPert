@@ -17,7 +17,6 @@ class UserManager {
 
     let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
 
-    // Save User
     func saveUser(_ user: UserModel) {
         let entity = User(context: context)
         entity.id = user.id
@@ -32,7 +31,6 @@ class UserManager {
         }
     }
 
-    // Fetch User
     func fetchUser() -> UserModel? {
         let fetchRequest: NSFetchRequest<User> = User.fetchRequest()
 

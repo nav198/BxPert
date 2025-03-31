@@ -6,14 +6,18 @@
 //
 
 import UIKit
-
 class ImageCaptureVC: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     
     private let viewModel = ImageViewModel()
+    
     private let collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
-        layout.itemSize = CGSize(width: 100, height: 100)
-        layout.scrollDirection = .horizontal
+        let itemSize = (UIScreen.main.bounds.width - 60) / 2
+        layout.itemSize = CGSize(width: itemSize, height: itemSize)
+        layout.scrollDirection = .vertical
+        layout.minimumInteritemSpacing = 10
+        layout.minimumLineSpacing = 10
+        
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.backgroundColor = .white
         return collectionView
@@ -32,6 +36,8 @@ class ImageCaptureVC: UIViewController, UICollectionViewDelegate, UICollectionVi
         
         view.addSubview(addButton)
         view.addSubview(collectionView)
+        collectionView.layer.borderWidth = 0.5
+        collectionView.layer.borderColor = UIColor.systemGray5.cgColor
         
         collectionView.delegate = self
         collectionView.dataSource = self
@@ -47,7 +53,7 @@ class ImageCaptureVC: UIViewController, UICollectionViewDelegate, UICollectionVi
             collectionView.topAnchor.constraint(equalTo: addButton.bottomAnchor, constant: 20),
             collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            collectionView.heightAnchor.constraint(equalToConstant: 120)
+            collectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20)
         ])
         
         viewModel.onImagesUpdated = { [weak self] in
@@ -56,7 +62,8 @@ class ImageCaptureVC: UIViewController, UICollectionViewDelegate, UICollectionVi
             }
         }
     }
-    
+
+
     @objc private func didTapAddImage() {
         let picker = UIImagePickerController()
         picker.sourceType = .photoLibrary

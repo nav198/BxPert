@@ -17,56 +17,39 @@ import FirebaseMessaging
 class AppDelegate: UIResponder, UIApplicationDelegate {
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        // Apply theme
-        ThemeManager.shared.applyTheme(ThemeManager.shared.currentTheme)
-
-        // Initialize Firebase
         FirebaseApp.configure()
 
-        // Set delegates
-        Messaging.messaging().delegate = self
         UNUserNotificationCenter.current().delegate = self
-        
-        requestNotificationPermission()
-        
-        Messaging.messaging().token { token, error in
-            if let error = error {
-                print("Error fetching FCM token: \(error)")
-            } else if let token = token {
-                print("FCM Token: \(token)")
-            }
+        let authOptions: UNAuthorizationOptions = [.alert, .badge, .sound]
+        UNUserNotificationCenter.current().requestAuthorization(options: authOptions) { granted, error in
+            print("🔔 Notification Permission Granted: \(granted)")
         }
-        print("APNs token: \(String(describing: Messaging.messaging().apnsToken))")
+
+        DispatchQueue.main.async {
+            application.registerForRemoteNotifications()
+        }
 
         return true
     }
 
-    
-    func requestNotificationPermission() {
-        let authOptions: UNAuthorizationOptions = [.alert, .badge, .sound]
-        UNUserNotificationCenter.current().requestAuthorization(options: authOptions) { granted, error in
-            print("Notification Permission Granted: \(granted)")
-            DispatchQueue.main.async {
-                UIApplication.shared.registerForRemoteNotifications()
-            }
-        }
-    }
-
     func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
-        print("✅ APNs Token Received: \(deviceToken)")
-        
-        // Set the APNs token for Firebase Messaging
+        let tokenString = deviceToken.map { String(format: "%02.2hhx", $0) }.joined()
+        print("✅ APNs Token Received: \(tokenString)")
+
+        // Assign the APNs token to Firebase
         Messaging.messaging().apnsToken = deviceToken
 
-        // Now fetch the FCM token
+        // Fetch FCM token AFTER APNs token is set
         Messaging.messaging().token { token, error in
             if let error = error {
-                print("❌ Error fetching FCM token: \(error)")
+                print("❌ Error fetching FCM token: \(error.localizedDescription)")
             } else if let token = token {
                 print("🎯 FCM Token: \(token)")
             }
         }
     }
+
+
 
     
     func application(
@@ -126,6 +109,10 @@ extension AppDelegate: MessagingDelegate {
             }
         }
 
+    }
+    
+    func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
+        print("Failed to register for APNs: \(error)")
     }
 }
 

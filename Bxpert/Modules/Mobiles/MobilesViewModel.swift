@@ -42,4 +42,11 @@ class MobilesViewModel{
         MobileManager.shared.deleteMobile(byId: mobileId)
         onDataUpdate?()
     }
+    
+    func updateItem(at index: Int, newName: String) {
+        guard index < mobilesList.count else { return }
+        mobilesList[index].name = newName
+        saveData()
+        onDataUpdate?()
+    }
 }
